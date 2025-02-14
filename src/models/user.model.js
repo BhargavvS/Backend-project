@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 
 const userSchema = new Schema({
-    name:{
+    username:{
         type: String,
         required: true,
         trim: true,
@@ -55,11 +55,11 @@ userSchema.pre("save" , async function(next) {
     next()
 })
 
-userschema.methods.matchpassword = async function(password){
-    return await bcrypt.compare(passsword , this.password)
+userSchema.methods.matchpassword = async function(password){
+    return await bcrypt.compare(password , this.password)
 }
 
-userschema.methods.generateAccesstToken = function(){
+userSchema.methods.generateAccesstToken = function(){
    return jwt.sign( {
         _id : this._id,
         email : this.email,

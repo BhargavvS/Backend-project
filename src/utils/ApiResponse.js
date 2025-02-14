@@ -1,4 +1,4 @@
-class ApiRespanse {
+class ApiResponse {
     constructor(
         message = "success",
         statusCode ,
@@ -11,4 +11,4 @@ class ApiRespanse {
     }
 }
 
-export { ApiRespanse }
+export { ApiResponse }
