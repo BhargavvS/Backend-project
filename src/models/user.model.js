@@ -39,7 +39,7 @@ const userSchema = new Schema({
         type:String,
     },
     watchHistory:{
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref:"Video"
     }
 }, 
@@ -49,7 +49,7 @@ const userSchema = new Schema({
 
 // there we are using normal function instead of arrow function because we need to use this keyword
 userSchema.pre("save" , async function(next) {
-   if(!this.ismodified("password")) return next()
+   if(!this.isModified("password")) return next()
     
     this.password = await bcrypt.hash(this.password , 10)
     next()
