@@ -15,7 +15,7 @@ const generateRefreshAndAccessTokens = async (userId) => {
     const accessToken =  user.generateAccesstToken()
     const refreshToken = user.generateRefreshToken()
 
-    user.refreshToken = refeshToken;
+    user.refreshToken = refreshToken;
 
     // this means , didnot need to check anything , just save it 
     await user.save({validateBeforeSave : false})
@@ -113,7 +113,7 @@ const loginUser = asyncHandler(async (req,res) => {
 
     const {username , email , password} = req.body 
 
-    if(!username || !email) {
+    if(!(username || email)) {
         throw new ApiError(400 , "Username or email is required")
     }
 
@@ -125,13 +125,13 @@ const loginUser = asyncHandler(async (req,res) => {
         throw new ApiError(404 , "username or password does not exist ")
     }
 
-   const isPasswordvalidate =  user.matchpassword(password)
+   const isPasswordValidate =  user.matchpassword(password)
 
-   if(!isPasswordvalidate){
+   if(!isPasswordValidate){
        throw new ApiError(401 , "username or password does not exist ")
    }
 
-   const {accessToken , refeshToken} = await user.generateRefreshAndAccessTokens(user._id)
+   const {accessToken , refreshToken} = await generateRefreshAndAccessTokens(user._id)
 
    const loggedInUser =await User.findById(user._id)
    .select("-password -refreshToken")
