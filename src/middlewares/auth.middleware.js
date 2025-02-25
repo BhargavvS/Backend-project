@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { User } from "../models/user.model.js"
 
 
-export const validateJWT = asyncHandler( async (req,resizeBy, next) => 
+export const validateJWT = asyncHandler( async (req,res ,next) => 
     {
   try {
     const token  =  req.cookies?.accessToken || req.header

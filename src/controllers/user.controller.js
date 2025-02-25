@@ -259,4 +259,69 @@ const updatePassword = asyncHandler(async (req, res) => {
  )
 });
 
-export { registerUser, loginUser, loggoutUser, RefreshAccessToken };
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(
+        200, 
+        req.user,
+        "user details fetched successfully"
+    )
+  )
+})
+
+const updateUserAccountDetails = asyncHandler(async (req,res) => {
+   const {fullname , email} = req.body
+
+   if(!fullname || !email) {
+    throw new ApiError(400, "fullname and email is required")
+   }
+ 
+const user =  User.findByIdAndUpdate(
+    req.user?._id ,
+    {
+        $set : {
+            fullname ,
+            email : email
+        } 
+    } ,
+    {
+        new : true
+    }   
+).select("-password")
+
+return res
+.status(200)
+.json(
+    new ApiResponse(
+        200,
+        {user},
+        "fullname and email updated successfully"
+    )
+)
+
+
+}) 
+
+const upadeUserAvatar = asyncHandler(async (req, res) => {
+   const {avatar} = req.body
+
+   if(!avatar) {
+    throw new ApiError(400, "avatar is required")
+   }
+
+   
+
+
+})
+export { 
+    registerUser, 
+    loginUser,
+     loggoutUser, 
+     RefreshAccessToken ,
+     updatePassword ,
+     getCurrentUser ,
+     updateUserAccountDetails
+    
+    };
