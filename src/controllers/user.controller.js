@@ -305,11 +305,6 @@ return res
 }) 
 
 const upadeUserAvatar = asyncHandler(async (req, res) => {
-   const {avatar} = req.body
-
-   if(!avatar) {
-    throw new ApiError(400, "avatar is required")
-   }
 
    const  updatedAvatarLocalPath =  req.file?.path
 
@@ -341,11 +336,7 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
 })
 
 const upadeUserCoverImage = asyncHandler(async (req, res) => {
-   const {coverImage} = req.body
-
-   if(!coverImage) {
-    throw new ApiError(400, "coverImage is required")
-   }
+   
 
    const  updatedCoverImageLocalPath =  req.file?.path
 
