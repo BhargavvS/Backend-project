@@ -278,7 +278,7 @@ const updateUserAccountDetails = asyncHandler(async (req,res) => {
     throw new ApiError(400, "fullname and email is required")
    }
  
-const user =  User.findByIdAndUpdate(
+const user = await User.findByIdAndUpdate(
     req.user?._id ,
     {
         $set : {
@@ -311,10 +311,75 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "avatar is required")
    }
 
-   
+   const  updatedAvatarLocalPath =  req.file?.path
 
+   if(!updatedAvatarLocalPath.url) {
+    throw new ApiError(400, "avatar is required")
+   }
 
+ const user =  await User.findByIdAndUpdate(
+    req.user?._id ,
+    {
+      $set : {
+        avatar : updatedAvatarLocalPath.url
+      }
+    },
+    {
+      new: true
+    }
+   ) .select("-password")
+
+   return res
+   .status(200)
+   .json(
+    new ApiResponse(
+      200 ,
+      {user} ,
+      "Avatar Updated Successfully"
+    )
+   )
 })
+
+const upadeUserCoverImage = asyncHandler(async (req, res) => {
+   const {coverImage} = req.body
+
+   if(!coverImage) {
+    throw new ApiError(400, "coverImage is required")
+   }
+
+   const  updatedCoverImageLocalPath =  req.file?.path
+
+   if(!updatedCoverImageLocalPath.url) {
+    throw new ApiError(400, "coverImage is required")
+   }
+
+ const user =  await User.findByIdAndUpdate(
+    req.user?._id ,
+    {
+      $set : {
+        coverImage : updatedCoverImageLocalPath.url
+      }
+    },
+    {
+      new: true
+    }
+   ) .select("-password")
+
+   return res
+   .status(200)
+   .json(
+    new ApiResponse(
+      200 ,
+      {user} ,
+      "Avatar Updated Successfully"
+    )
+   )
+})
+
+
+
+
+
 export { 
     registerUser, 
     loginUser,
@@ -322,6 +387,8 @@ export {
      RefreshAccessToken ,
      updatePassword ,
      getCurrentUser ,
-     updateUserAccountDetails
+     updateUserAccountDetails,
+     upadeUserAvatar,
+     upadeUserCoverImage
     
     };
