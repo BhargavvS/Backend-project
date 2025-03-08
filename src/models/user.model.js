@@ -1,6 +1,7 @@
 import mongoose , {Schema} from "mongoose";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import CryptoJS from "crypto-js"
 
 const userSchema = new Schema({
     username:{
@@ -82,6 +83,13 @@ userSchema.methods.generateRefreshToken = function() {
         expiresIn: process.env.REFRESH_TOKEN_EXPIRES
     }
 )
+}
+
+userSchema.methods.getPublicId = function(url) {
+    const bytes = CryptoJS.AES.decrypt(url , process.env.CLOUDINARY_API_SECRET);
+    const decryptedUrl = bytes.toString(CryptoJS.enc.Utf8);
+
+    return decryptedUrl
 }
 
 export const User = mongoose.model("User",userSchema)

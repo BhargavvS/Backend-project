@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary , deleteFromClodinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -308,15 +308,22 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
 
    const  updatedAvatarLocalPath =  req.file?.path
 
-   if(!updatedAvatarLocalPath.url) {
+   if(!updatedAvatarLocalPath) {
     throw new ApiError(400, "avatar is required")
    }
+
+const avatar =   await uploadOnCloudinary(updatedAvatarLocalPath)
+if(!avatar.url) {
+  throw new ApiError(400, "Failed to upload cover image on the cloudinary")
+}
+
+
 
  const user =  await User.findByIdAndUpdate(
     req.user?._id ,
     {
       $set : {
-        avatar : updatedAvatarLocalPath.url
+        avatar : avatar.url
       }
     },
     {
@@ -324,6 +331,15 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
     }
    ) .select("-password")
 
+  const avatarPublicId =  user.getPublicId(user.avatar.url)
+
+  if(!avatarPublicId) {
+    throw new ApiError(400, "Failed to get public id of the avatar")
+  }
+
+ const response =  await deleteFromClodinary(avatarPublicId)
+ console.log(response);
+ 
    return res
    .status(200)
    .json(
@@ -335,20 +351,25 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
    )
 })
 
-const upadeUserCoverImage = asyncHandler(async (req, res) => {
+const updateUserCoverImage = asyncHandler(async (req, res) => {
    
 
    const  updatedCoverImageLocalPath =  req.file?.path
 
-   if(!updatedCoverImageLocalPath.url) {
+   if(!updatedCoverImageLocalPath) {
     throw new ApiError(400, "coverImage is required")
    }
+
+const coverImage =   await uploadOnCloudinary(updatedCoverImageLocalPath)
+if(!coverImage.url) {
+  throw new ApiError(400, "Failed to upload cover image on the cloudinary")
+}
 
  const user =  await User.findByIdAndUpdate(
     req.user?._id ,
     {
       $set : {
-        coverImage : updatedCoverImageLocalPath.url
+        coverImage : coverImage.url
       }
     },
     {
@@ -367,7 +388,21 @@ const upadeUserCoverImage = asyncHandler(async (req, res) => {
    )
 })
 
+const getUserChannelDetails = asyncHandler(async (req,res) => {
+      const {username} =  req.params
 
+      if(!username) {
+        throw new ApiError(401,"username is required")
+      }
+
+     await User.aggregate([
+        {
+          $match : {
+            username : username?.lowercase()
+          }
+        },
+        {},
+      ])
 
 
 
@@ -380,6 +415,6 @@ export {
      getCurrentUser ,
      updateUserAccountDetails,
      upadeUserAvatar,
-     upadeUserCoverImage
+     updateUserCoverImage
     
     };

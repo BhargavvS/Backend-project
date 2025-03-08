@@ -1,5 +1,6 @@
 import {v2 as Cloudinary} from "cloudinary"
 import fs from "fs"
+import { ApiError } from "./ApiError.js";
 
 Cloudinary.config({
 cloud_name	: process.env.CLOUDINARY_CLOUD_NAME,
@@ -32,4 +33,20 @@ const uploadOnCloudinary  = async (localFilePath) => {
 
 }
 
-export {uploadOnCloudinary}
+const deleteFromClodinary = async (imagePublicId) => {
+    try {
+
+        const response =    await Cloudinary.uploader.destroy(imagePublicId , {
+            resource_type : "auto"
+        })
+
+        return "deleted successfully"
+
+
+    } catch (error) {
+        console.error('Error while deleting  from Cloudinary:', error);
+        return null
+    }
+}
+
+export {uploadOnCloudinary , deleteFromClodinary}
