@@ -33,20 +33,20 @@ const uploadOnCloudinary  = async (localFilePath) => {
 
 }
 
-const deleteFromClodinary = async (imagePublicId) => {
-    try {
+// const deleteFromClodinary = async (imagePublicId) => {
+//     try {
 
-        const response =    await Cloudinary.uploader.destroy(imagePublicId , {
-            resource_type : "auto"
-        })
+//         const response =    await Cloudinary.uploader.destroy(imagePublicId , {
+//             resource_type : "auto"
+//         })
 
-        return "deleted successfully"
+//         return "deleted successfully"
 
 
-    } catch (error) {
-        console.error('Error while deleting  from Cloudinary:', error);
-        return null
-    }
-}
+//     } catch (error) {
+//         console.error('Error while deleting  from Cloudinary:', error);
+//         return null
+//     }
+// }
 
-export {uploadOnCloudinary , deleteFromClodinary}
+export {uploadOnCloudinary}

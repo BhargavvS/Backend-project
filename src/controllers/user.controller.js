@@ -1,12 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import {
-  uploadOnCloudinary,
-  deleteFromClodinary,
-} from "../utils/cloudinary.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose , {Schema} from "mongoose";
 
 const generateRefreshAndAccessTokens = async (userId) => {
   try {
@@ -189,7 +187,7 @@ const loggoutUser = asyncHandler(async (req, res) => {
 });
 
 const RefreshAccessToken = asyncHandler(async (req, res) => {
-  const token = req.coookies.refreshToken || req.body.refreshToken;
+  const token = req.cookies.refreshToken || req.body.refreshToken;
 
   if (!token) {
     throw new ApiError(401, "UnAuthorized request");
@@ -313,14 +311,14 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
     }
   ).select("-password");
 
-  const avatarPublicId = user.getPublicId(user.avatar.url);
+  // const avatarPublicId = user.getPublicId(user.avatar.url);
 
-  if (!avatarPublicId) {
-    throw new ApiError(400, "Failed to get public id of the avatar");
-  }
+  // if (!avatarPublicId) {
+  //   throw new ApiError(400, "Failed to get public id of the avatar");
+  // }
 
-  const response = await deleteFromClodinary(avatarPublicId);
-  console.log(response);
+  // const response = await deleteFromClodinary(avatarPublicId);
+  // console.log(response);
 
   return res
     .status(200)
@@ -363,7 +361,7 @@ const getUserChannelDetails = asyncHandler(async (req, res) => {
     throw new ApiError(400, "username is required");
   }
 
-  const channel = await User.aaggreagate([
+  const channel = await User.aggregate([
     {
       $match: {
         username: username?.toLowerCase(),
@@ -428,7 +426,7 @@ const getUserChannelDetails = asyncHandler(async (req, res) => {
 });
 
 const getWatchHistory = asyncHandler(async (req, res) => {
- const user  =  await User.aggregate([
+  const user = await User.aggregate([
     {
       $match: {
         _id: new mongoose.Types.ObjectId(req.user._id),
@@ -440,45 +438,47 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         localField: "watchHistory",
         foreignField: "_id",
         as: "watchHistory",
-      },
-      pipeeline: [
-        {
-          $lookup: {
-            from: "users",
-            localField: "owner",
-            foreignFiirld: "_id",
-            as: "owner",
-          },
-          pipeline: [
-            {
-              $project: {
-                username: 1,
-                fullname: 1,
-                avatar: 1,
-              },
-            },
-            {
-              $addFields: {
-                owner: {
-                  $first: "$owner",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                    fullname: 1,
+                    avatar: 1,
+                  },
                 },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
               },
             },
-          ],
-        },
-      ],
+          },
+        ],
+      },
     },
   ]);
+  console.log(user.username);
+  
 
   return res
-  .status(200)
-  .json(
-    new ApiResponse(
-      200 ,
-      user[0].watchHistoey ,
-      "watch history fetched successfully"
-    )
-  )
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+       [user[0].watchHistoey, user.username ] ,
+        "watch history fetched successfully"
+      )
+    );
 });
 
 export {
