@@ -98,7 +98,7 @@ const togglePublishStatus = asyncHandler(async (req,res) => {
         },
         {
             $set : {
-                isPublished 
+                isPublished : !isPublished
             }
         },
         {
