@@ -79,6 +79,24 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
     // delete a comment
+    const {commentId, videoId} = req.params
+
+    if(!isValidObjectId(commentId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400 , "Comment ID and video ID is required")
+    }
+
+   await Comment.findOneAndDelete({
+        _id : commentId,
+    }
+)
+
+return res
+.status(200)
+.json(
+    new ApiResponse(
+        200 , {} , "Comment deleted Successfully"
+)
+)
 })
 
 export {
