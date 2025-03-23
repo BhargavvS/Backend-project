@@ -42,6 +42,39 @@ const addComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
     // update a comment
+    const {commentId, videoId} = req.params
+    const {comment}  = req.body
+
+    if(!isValidObjectId(commentId) || !newComment || !isValidObjectId(videoId)) {
+        throw new ApiError(400 , "Comment ID , comment , videoId is is required")
+    }
+
+  const updatedComment =  await Comment.findByIdAndUpdate(
+        {
+            _id : commentId,
+            video : videoId
+        },
+        {
+           $set : {
+               comment : comment
+           }
+        },
+        {
+            $new : true
+        }
+    )
+
+    if(!updatedComment) {
+        throw new ApiError(500 , "Comment not updated")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200 , updatedComment ,  "Comment updated Successfully"
+        )
+    )
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
