@@ -355,6 +355,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 const getUserChannelDetails = asyncHandler(async (req, res) => {
+  // to get the no of subscribers and the no of channels the user is subscribed to of a particular user
+  // status of the channel as subscribed or not 
   const { username } = req.params;
 
   if (!username?.trim()) {
