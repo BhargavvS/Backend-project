@@ -1,10 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary , deleteFromClodinary} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose , {Schema} from "mongoose";
+import {extractPublicId } from 'cloudinary-build-url';
 
 const generateRefreshAndAccessTokens = async (userId) => {
   try {
@@ -311,15 +312,6 @@ const upadeUserAvatar = asyncHandler(async (req, res) => {
     }
   ).select("-password");
 
-  // const avatarPublicId = user.getPublicId(user.avatar.url);
-
-  // if (!avatarPublicId) {
-  //   throw new ApiError(400, "Failed to get public id of the avatar");
-  // }
-
-  // const response = await deleteFromClodinary(avatarPublicId);
-  // console.log(response);
-
   return res
     .status(200)
     .json(new ApiResponse(200, { user }, "Avatar Updated Successfully"));
@@ -352,6 +344,40 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, { user }, "Avatar Updated Successfully"));
+});
+
+const deleteAvatar = asyncHandler(async (req,res) => {
+    const { username } = req.params;
+
+    if(!username?.trim()){
+      throw new ApiError(400, "username is required");
+    }
+
+    const user = await db.findOne(
+      {username: username?.toLowerCase()},
+    );
+
+    if(!user){
+      throw new ApiError(404, "user does not exist");
+    }
+
+    const url = user.avatar;
+    if(!url){
+      throw new ApiError('The avatar does not exist')
+    }
+
+    const publicId = extractPublicId(url);
+    await deleteFromClodinary(publicId);
+
+    user.avatar = "";
+    await user.save({validateBeforeSave: false});
+
+    return res
+    .status(200)
+    .json(
+      new ApiResponse(200,{}, "avatar deleted sucessfully")
+    );
+
 });
 
 const getUserChannelDetails = asyncHandler(async (req, res) => {
@@ -495,4 +521,5 @@ export {
   updateUserCoverImage,
   getUserChannelDetails,
   getWatchHistory,
+  deleteAvatar
 };

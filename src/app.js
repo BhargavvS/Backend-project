@@ -14,14 +14,15 @@ app.use(express.urlencoded({extended : true , limit : "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser()) // to manage and access the cookies 
 
-import healthcheckRouter from "./routes/healthcheck.routes.js"
-import tweetRouter from "./routes/tweet.routes.js"
-import subscriptionRouter from "./routes/subscription.routes.js"
-import videoRouter from "./routes/video.routes.js"
-import commentRouter from "./routes/comment.routes.js"
-import likeRouter from "./routes/like.routes.js"
-import playlistRouter from "./routes/playlist.routes.js"
-import dashboardRouter from "./routes/dashboard.routes.js"
+// import healthcheckRouter from "../routes/healthcheck.router.js"
+import healthcheckRouter from "./routers/healthcheck.router.js"
+import tweetRouter from "./routers/tweet.router.js"
+import subscriptionRouter from "./routers/subscription.router.js"
+import videoRouter from "./routers/video.router.js"
+import commentRouter from "./routers/comment.router.js"
+import likeRouter from "./routers/like.router.js"
+import playlistRouter from "./routers/playlist.router.js"
+import dashboardRouter from "./routers/dashboard.router.js"
 
 //routes declaration
 // app.use("api/v1/user" , userRouter) example

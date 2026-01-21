@@ -5,7 +5,7 @@ import { Video } from "../models/video.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import mongoose , {Schema} from "mongoose";
+import mongoose , {isValidObjectId, Schema} from "mongoose";
 import { json } from "express";
 
 const getAllVideos = asyncHandler(async (req,res) => {
@@ -16,17 +16,58 @@ const getAllVideos = asyncHandler(async (req,res) => {
 
 const publishAVideo =asyncHandler(async (req,res) => {
     // get a video , upload to the cloudinary , create a video
-    const {title , description } = req.body
+      const { title, description} = req.body;
+  
+
+    if (
+    [title, description].some((field) => field?.trim() === "")
+  ) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+    const videoLocalPath = req.files?.videoFile[0]?.path;
+    const videoUrl = await uploadOnCloudinary(videoLocalPath, "video")
+    const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+    const thumbnailUrl = await uploadOnCloudinary(thumbnailLocalPath, "image");
+
+    if(!thumbnailUrl) {
+        throw new ApiError(500 , "Thumbnail not uploaded")
+    }
+
+    if(!videoUrl) {
+        throw new ApiError(500 , "Video not uploaded")
+    }
+   
+    const video = await Video.create({
+       videoFile: videoUrl.url,
+        thumbnail: thumbnailUrl.url,
+        owner: User._id,
+        title,
+        description,
+        duration: videoUrl.duration, // Assuming duration is passed in the request body
+        views: 0,
+        isPublished: true,
+      });
+
+      return res
+      .status(201)
+    .json(
+        new ApiResponse(
+                200 , video , "video published successfully"
+            )
+        )
+    
+
 })
 
 const getVideoById = asyncHandler(async (req, res)=> {
     const {videoId} = req.params
 
-    if(!videoId) {
+    if(!isValidObjectId(videoId)) {
         throw new ApiError(400 , "videoId is required")
     }
 
-  const video = await Video.findById({_id : videoId})
+  const video = await Video.findById({_id : ObjectId(videoId)})
 
   if(!video) {
     throw new ApiError(500 , "can't find the video")
