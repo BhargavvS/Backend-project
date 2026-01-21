@@ -44,17 +44,16 @@ const addComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
     // update a comment
-    const {commentId, videoId} = req.params
+    const {commentId} = req.params
     const {comment}  = req.body
 
-    if(!isValidObjectId(commentId) || !newComment || !isValidObjectId(videoId)) {
+    if(!(commentId) || !comment) {
         throw new ApiError(400 , "Comment ID , comment , videoId is is required")
     }
 
   const updatedComment =  await Comment.findByIdAndUpdate(
         {
             _id : commentId,
-            video : videoId
         },
         {
            $set : {
