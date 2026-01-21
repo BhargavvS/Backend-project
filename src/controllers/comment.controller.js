@@ -1,9 +1,7 @@
-
-import mongoose from "mongoose"
-import {Comment} from "../models/comment.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import { Comment } from "../models/comment.model.js"
 
 const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
@@ -14,20 +12,24 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
     // add a comment to a video
-    const {videoId} = req.params
-    const {comment} = req.body
+    const {videoId} = req.params // while sending the id no '' or "" required send the id as it is
+    const {comment} = req.body // is {} is used then json format is used to send the data
 
-    if(!isValidObjectId(videoId) || !comment) {
-        throw new ApiError(400, "Video ID and comment is required")
+    if(!(videoId)) {
+        throw new ApiError(400, "Video ID is required")
     }
 
- const Comment = await  Comment.create({
+    if(!comment) {
+        throw new ApiError(400 , "comment is required")
+    }
+
+ const newComment = await  Comment.create({
     video : videoId,
     comment : comment,
     owner : req.user._id
    })
 
-   if(!Comment) {
+   if(!newComment) {
     throw new ApiError(500 , "Comment not added")
    }
 
@@ -35,7 +37,7 @@ const addComment = asyncHandler(async (req, res) => {
    .status(200)
    .json(
     new ApiResponse(
-        200 , Comment ,  "commented Successfully"
+        200 , newComment ,  "commented Successfully"
     )
    )
 })
@@ -104,4 +106,4 @@ export {
     addComment, 
     updateComment,
      deleteComment
-    }
+}

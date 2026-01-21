@@ -8,7 +8,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const createTweet = asyncHandler(async (req, res) => {
     //create tweet
     const {content} = req.body    
-    if(!!content) {
+    if(!content) {
         throw new ApiError(400, "Tweet is required")
     }
 
@@ -16,6 +16,7 @@ const createTweet = asyncHandler(async (req, res) => {
         content,
         owner: req.user._id
     })
+
     if(!newTweet) {
         throw new ApiError(500, "Tweet not created")
     }
@@ -32,6 +33,7 @@ const createTweet = asyncHandler(async (req, res) => {
 const getUserTweets = asyncHandler(async (req, res) => {
     // get user tweets
     const {userId} = req.params
+    
     if(!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid User ID")
     }
